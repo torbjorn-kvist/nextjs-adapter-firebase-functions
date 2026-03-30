@@ -1,0 +1,72 @@
+{
+  "name": "nextjs-adapter-firebase-functions",
+  "version": "0.1.0",
+  "description": "Firebase Cloud Functions adapter for Next.js 16.2 adapter API",
+  "license": "MIT",
+  "author": "Torbjörn Kvist",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/torbjorn-kvist/nextjs-adapter-firebase-functions"
+  },
+  "homepage": "https://github.com/torbjorn-kvist/nextjs-adapter-firebase-functions#readme",
+  "keywords": [
+    "nextjs",
+    "firebase",
+    "cloud-functions",
+    "adapter",
+    "firebase-functions",
+    "cloud-run"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./environment": {
+      "types": "./dist/environment.d.ts",
+      "import": "./dist/environment.js",
+      "require": "./dist/environment.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts src/environment.ts --format cjs,esm --dts --clean",
+    "dev": "tsup src/index.ts src/environment.ts --format cjs,esm --dts --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format src/",
+    "format:fix": "biome format --write src/"
+  },
+  "peerDependencies": {
+    "firebase-functions": ">=4.0.0",
+    "firebase-tools": ">=13.0.0",
+    "next": ">=16.2.0"
+  },
+  "peerDependenciesMeta": {
+    "firebase-tools": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.4",
+    "@types/node": "^22.0.0",
+    "firebase-functions": "^7.2.2",
+    "firebase-tools": "^14.27.0",
+    "next": "^16.2.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

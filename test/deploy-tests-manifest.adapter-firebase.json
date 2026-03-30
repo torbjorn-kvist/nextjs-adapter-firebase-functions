@@ -1,0 +1,23 @@
+{
+  "$comment": "Tests known to work with the Firebase Functions adapter. Start conservative — expand over time.",
+  "rules": {
+    "include": [
+      "test/e2e/app-dir/app/index.test.ts",
+      "test/e2e/app-dir/app-routes/app-custom-routes.test.ts",
+      "test/e2e/app-dir/app-static/app-static.test.ts",
+      "test/e2e/app-dir/metadata/metadata.test.ts",
+      "test/e2e/app-dir/navigation/navigation.test.ts",
+      "test/e2e/app-dir/not-found/basic/index.test.ts",
+      "test/e2e/app-dir/headers-static-bailout/headers-static-bailout.test.ts",
+      "test/e2e/app-dir/rsc-basic/rsc-basic.test.ts",
+      "test/e2e/app-dir/searchparams/searchparams.test.ts"
+    ],
+    "exclude": []
+  },
+  "unsupported": {
+    "$comment": "Features not supported by Firebase Functions adapter",
+    "edge_runtime": "Firebase Functions runs on Node.js only — no edge runtime support",
+    "isr_on_demand": "ISR revalidation requires cache backend not yet implemented",
+    "middleware_rewrites_external": "Emulator may not support external rewrites correctly"
+  }
+}
