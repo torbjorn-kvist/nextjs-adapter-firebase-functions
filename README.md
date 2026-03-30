@@ -138,54 +138,28 @@ firebase-dist/
 ## Deployment
 
 ```bash
-# Install function dependencies
-cd firebase-dist/functions && npm install --no-package-lock && cd ../..
-
-# Deploy
 firebase deploy --only functions --project my-project-id
 ```
 
 During `firebase deploy`, you will be prompted to set any secret values not yet stored in Cloud Secret Manager.
 
-### Recommended: single build + deploy script
+### Recommended: use `predeploy` in `firebase.json`
+
+Add a `predeploy` hook so `firebase deploy` triggers the build automatically:
 
 ```json
 {
-  "scripts": {
-    "build:firebase": "next build --webpack",
-    "deploy:firebase": "npm run build:firebase && cd firebase-dist/functions && npm install --no-package-lock && cd ../.. && firebase deploy --only functions --project my-project-id"
+  "functions": {
+    "source": "firebase-dist/functions",
+    "predeploy": ["next build --webpack"]
   }
 }
 ```
 
----
-
-## Local Development with Firebase Emulator
+Then deploy with:
 
 ```bash
-# Install function dependencies first
-cd firebase-dist/functions && npm install && cd ../..
-
-# Start functions emulator
-firebase emulators:start --only functions
-```
-
-The function is available at `http://127.0.0.1:5001/{project-id}/us-central1/{functionName}`.
-
-Any project ID starting with `demo-` runs fully offline — no Google credentials required:
-
-```bash
-firebase emulators:start --only functions --project demo-myapp
-```
-
-### Providing secrets to the emulator
-
-Create `firebase-dist/functions/.secret.local` (gitignored by default):
-
-```
-# firebase-dist/functions/.secret.local  (do not commit)
-DATABASE_URL=postgres://localhost/mydb_dev
-STRIPE_SECRET_KEY=sk_test_51abc...
+firebase deploy --only functions --project my-project-id
 ```
 
 ---
