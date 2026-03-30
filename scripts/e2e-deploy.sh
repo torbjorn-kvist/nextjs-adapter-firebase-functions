@@ -8,7 +8,8 @@ set -euo pipefail
 cd "$NEXT_TEST_DIR"
 
 ADAPTER_DIR="${ADAPTER_DIR:?ADAPTER_DIR must be set to the adapter-firebase-functions directory}"
-PROJECT_ID="${FIREBASE_PROJECT_ID:-mono-tk-payload}"
+[ -f "$ADAPTER_DIR/.env" ] && source "$ADAPTER_DIR/.env"
+PROJECT_ID="${FIREBASE_PROJECT_ID:?FIREBASE_PROJECT_ID must be set (or added to .env)}"
 
 # --- Pack adapter and inject into fixture package.json ---
 ADAPTER_PACK_LOCK="${ADAPTER_DIR}/.e2e-deploy-pack.lock"

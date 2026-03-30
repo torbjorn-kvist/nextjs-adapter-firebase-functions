@@ -10,11 +10,12 @@ set -euo pipefail
 # Env:
 #   ADAPTER_DIR   (required) path to adapter-firebase-functions root
 #   NEXT_TEST_DIR (optional) directory to scaffold into; created if absent
-#   FIREBASE_PROJECT_ID (optional, default: mono-tk-payload)
+#   FIREBASE_PROJECT_ID (required, or set in .env)
 # Contract: only stdout output is the emulator URL.
 
 ADAPTER_DIR="${ADAPTER_DIR:?ADAPTER_DIR must be set to the adapter-firebase-functions directory}"
-PROJECT_ID="${FIREBASE_PROJECT_ID:-mono-tk-payload}"
+[ -f "$ADAPTER_DIR/.env" ] && source "$ADAPTER_DIR/.env"
+PROJECT_ID="${FIREBASE_PROJECT_ID:?FIREBASE_PROJECT_ID must be set (or added to .env)}"
 
 # create-payload-app creates a named subdirectory — work in the parent and then cd in.
 PARENT_DIR="$(mktemp -d)"

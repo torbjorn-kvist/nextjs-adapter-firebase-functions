@@ -11,7 +11,8 @@ set -euo pipefail
 # Contract: only stdout output is the server URL.
 
 ADAPTER_DIR="${ADAPTER_DIR:?ADAPTER_DIR must be set to the adapter-firebase-functions directory}"
-PROJECT_ID="${FIREBASE_PROJECT_ID:-mono-tk-payload}"
+[ -f "$ADAPTER_DIR/.env" ] && source "$ADAPTER_DIR/.env"
+PROJECT_ID="${FIREBASE_PROJECT_ID:?FIREBASE_PROJECT_ID must be set (or added to .env)}"
 
 # Use NEXT_TEST_DIR if set (harness mode), otherwise create a temp dir
 # Note: mktemp suffix is lowercased — create-next-app derives the package name
