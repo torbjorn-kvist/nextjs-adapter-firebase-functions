@@ -229,7 +229,7 @@ async function buildFunctionsPackageJson(
       ...projectDeps,
       'firebase-admin': projectDeps['firebase-admin'] ?? '^12.0.0',
       'firebase-functions': projectDeps['firebase-functions'] ?? '^7.2.2',
-      next: ctx.nextVersion ? `^${ctx.nextVersion}` : (projectDeps.next ?? '*'),
+      next: ctx.nextVersion ? `~${ctx.nextVersion}` : (projectDeps.next ?? '*'),
     },
     ...(Object.keys(optionalDependencies).length > 0 && { optionalDependencies }),
   }
