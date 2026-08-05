@@ -39,6 +39,7 @@
   },
   "scripts": {
     "build": "tsup src/index.ts src/environment.ts --format cjs,esm --dts --clean",
+    "prepack": "npm run build",
     "dev": "tsup src/index.ts src/environment.ts --format cjs,esm --dts --watch",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src/",
@@ -61,7 +62,7 @@
     "@types/node": "^22.0.0",
     "firebase-functions": "^7.2.2",
     "firebase-tools": "^14.27.0",
-    "next": "^16.2.0",
+    "next": "~16.2.0",
     "tsup": "^8.0.0",
     "tsx": "^4.21.0",
     "typescript": "^5.7.0"
