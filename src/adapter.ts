@@ -10,6 +10,7 @@ import type {
   FirebaseDeploymentManifest,
   FirebaseFunctionManifest,
   FirebaseFunctionsHttpsOptions,
+  ResolvedCacheTagsOptions,
 } from './types.js'
 
 export const ADAPTER_NAME = 'firebase-functions'
@@ -35,6 +36,22 @@ function resolveOutDir(projectDir: string, outDir: string): string {
 /** Extracts the string name from a secret — accepts both plain strings and SecretParam objects. */
 function resolveSecretName(s: string | { name: string }): string {
   return typeof s === 'string' ? s : s.name
+}
+
+/** Cloudflare caps the Cache-Tag header at 16 KB. */
+const DEFAULT_CACHE_TAG_MAX_BYTES = 16 * 1024
+
+function resolveCacheTags(
+  option: FirebaseAdapterOptions['cacheTags'],
+): ResolvedCacheTagsOptions | null {
+  if (!option) return null
+  const opts = option === true ? {} : option
+  return {
+    header: opts.header ?? 'Cache-Tag',
+    includeNextHeader: opts.includeNextHeader ?? false,
+    stripImplicitTags: opts.stripImplicitTags ?? false,
+    maxBytes: opts.maxBytes ?? DEFAULT_CACHE_TAG_MAX_BYTES,
+  }
 }
 
 function toRecord(value: unknown): Record<string, unknown> {
@@ -229,7 +246,7 @@ async function buildFunctionsPackageJson(
       ...projectDeps,
       'firebase-admin': projectDeps['firebase-admin'] ?? '^12.0.0',
       'firebase-functions': projectDeps['firebase-functions'] ?? '^7.2.2',
-      next: ctx.nextVersion ? `~${ctx.nextVersion}` : (projectDeps.next ?? '*'),
+      next: ctx.nextVersion ? `${ctx.nextVersion}` : (projectDeps.next ?? '*'),
     },
     ...(Object.keys(optionalDependencies).length > 0 && { optionalDependencies }),
   }
@@ -340,6 +357,7 @@ export async function runOnBuildComplete(
   const rawSecrets = [...(options.secrets ?? []), ...(functionConfig.secrets ?? [])]
   const secrets = [...new Set(rawSecrets.map(resolveSecretName))]
   const params = options.params ?? {}
+  const cacheTags = resolveCacheTags(options.cacheTags)
 
   // Validate secret names
   for (const name of secrets) {
@@ -402,7 +420,7 @@ export async function runOnBuildComplete(
   await writeFile(path.join(functionsDir, 'firebase-params.js'), paramsContent, 'utf8')
 
   // 7. Write functions/index.js
-  const entryContent = generateFunctionsEntry(functionName, secrets, params)
+  const entryContent = generateFunctionsEntry({ functionName, secrets, params, cacheTags })
   await writeFile(path.join(functionsDir, 'index.js'), entryContent, 'utf8')
 
   // 8. Write functions/package.json
@@ -433,6 +451,7 @@ export async function runOnBuildComplete(
     `  Function: ${functionName} (${functionConfig.memory ?? '1GiB'}, ${functionConfig.timeoutSeconds ?? 60}s timeout)`,
   )
   if (secrets.length > 0) console.log(`  Secrets: ${secrets.join(', ')}`)
+  if (cacheTags) console.log(`  Cache tags: exposed via "${cacheTags.header}" header`)
 }
 
 // ---------------------------------------------------------------------------

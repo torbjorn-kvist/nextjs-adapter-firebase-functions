@@ -1,5 +1,6 @@
 export { ADAPTER_NAME, createFirebaseAdapter } from './adapter.js'
 export type {
+  CacheTagsOptions,
   FirebaseAdapterOptions,
   FirebaseDeploymentManifest,
   FirebaseFunctionManifest,

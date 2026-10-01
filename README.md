@@ -213,6 +213,7 @@ interface FirebaseAdapterOptions {
   params?: Record<string, FirebaseParamDefinition>
   env?: Record<string, string>
   envFilePath?: string
+  cacheTags?: boolean | CacheTagsOptions
   functionConfig?: FirebaseFunctionsHttpsOptions
 }
 ```
@@ -353,6 +354,56 @@ Path to a `.env` file (relative to project root) merged into `functions/.env`. I
 ```ts
 createFirebaseAdapter({ envFilePath: '.env.production' })
 ```
+
+---
+
+### `cacheTags`
+
+**Type:** `boolean | CacheTagsOptions` — **Default:** `false`
+
+Exposes Next.js cache tags on cached responses so an upstream CDN (Cloudflare, Fastly)
+can purge by tag.
+
+```ts
+createFirebaseAdapter({ cacheTags: true })
+```
+
+A cached page then responds with:
+
+```
+Cache-Tag: _N_T_/layout,_N_T_/blog/[slug],products,cms:page-42
+```
+
+Cloudflare strips `Cache-Tag` before the response reaches the browser and uses it for
+[purge by cache-tag](https://developers.cloudflare.com/cache/how-to/purge-cache/purge-by-tags/)
+(Enterprise plans only).
+
+```ts
+interface CacheTagsOptions {
+  header?: string             // default 'Cache-Tag'
+  includeNextHeader?: boolean // also emit `x-next-cache-tags` — default false
+  stripImplicitTags?: boolean // drop Next.js `_N_T_/…` path tags — default false
+  maxBytes?: number           // truncate on a tag boundary — default 16384 (Cloudflare's cap)
+}
+```
+
+**How it works.** Next.js only emits the tag header itself in "minimal mode" — the Vercel
+contract, where the platform owns routing and ISR never flushes to disk. That mode is
+incompatible with this adapter, which runs the full Next.js server. Instead the generated
+`functions/index.js` reads the tags off the response cache entry through
+`requestMeta.onCacheEntry` and sets the header before Next.js writes the response.
+
+**Limitations:**
+
+- **App Router pages only.** Route Handlers (`app/**/route.ts`) expose no equivalent hook in
+  Next.js 16, so their tags are not emitted.
+- **Cached responses only.** Dynamic (SSR) responses have no cache entry and therefore no tags —
+  which is correct, since there is nothing for the CDN to purge.
+- Relies on `getRequestHandlerWithMetadata()`, which Next.js marks `@internal`. If a future
+  Next.js release removes it, the adapter logs a warning at startup and serves normally
+  without the header.
+- Purging is still your job: `revalidateTag()` invalidates the Cloud Run instance that handled
+  the request, not the CDN. Call Cloudflare's purge API alongside it.
 
 ---
 

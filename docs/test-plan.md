@@ -128,6 +128,8 @@ node run-tests.js --type=e2e
 - Parallel test shards each start their own emulator on a random port
 - **No edge runtime**: Firebase Functions runs on Node.js only
 - **No ISR on-demand revalidation**: requires cache backend not yet implemented
+- **Cache tags**: exposed via the `cacheTags` option (App Router pages only — Route Handlers
+  have no `onCacheEntry` hook in Next.js 16); purging the CDN is left to the caller
 - **Emulator timeout**: emulator cold start is 5-15s; 4-minute test timeout is sufficient but tight for large fixtures
 
 ## See Also
